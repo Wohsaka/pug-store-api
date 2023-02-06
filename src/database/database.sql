@@ -1,12 +1,12 @@
 CREATE TABLE items ( id SERIAL PRIMARY KEY, 
-productName VARCHAR(255) NOT NULL, 
-productPrice NUMERIC NOT NULL, 
+product_name VARCHAR(255) NOT NULL, 
+product_price NUMERIC NOT NULL, 
 category VARCHAR(40) NOT NULL, 
-productId TEXT NOT NULL,  
-productImg TEXT NOT NULL, 
-productDescription TEXT NOT NULL);
+product_id TEXT NOT NULL,  
+product_img TEXT NOT NULL, 
+product_description TEXT NOT NULL);
 
-INSERT INTO items (productName, productPrice, category, productId, productImg, productDescription) VALUES ('Dog Food Premium 8kg', 
+INSERT INTO items (product_name, product_price, category, product_id, product_img, product_description) VALUES ('Dog Food Premium 8kg', 
 20.00, 
 'Food', 
 'DF01', 

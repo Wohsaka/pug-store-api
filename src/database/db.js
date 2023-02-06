@@ -6,8 +6,9 @@ const pool = new Pool({
   database: process.env.DATABASE_NAME,
   user: process.env.DATABASE_USER,
   password: process.env.DATABASE_PASSWORD,
+  ssl: true,
 })
 pool.on('error', (error) => console.log(error))
-pool.on('connect', () => console.log('Connected to database!!'))
+pool.on('connect', () => console.log('Client connected to database!!'))
 
 module.exports = pool
