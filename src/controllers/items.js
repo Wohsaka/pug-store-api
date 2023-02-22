@@ -1,12 +1,13 @@
 const db = require('../database/db')
+const jwt = require('jsonwebtoken')
 
 const getItems = async (req, res) => {
   const { category, query } = req.query
   let items
   try {
     if (category && !query) {
-      items = await db.query('SELECT * FROM items WHERE category = $1', [
-        category,
+      items = await db.query('SELECT * FROM items WHERE LOWER(category) = $1', [
+        category.toLowerCase(),
       ])
     } else if (!category && query) {
       items = await db.query(
@@ -32,6 +33,68 @@ const getItems = async (req, res) => {
   }
 }
 
+const createItem = async (req, res) => {
+  const { name, price, category, id, img, description } = req.body
+  const token = req.headers.authorization
+  let jwtError = true
+
+  jwt.verify(
+    token,
+    process.env.ACCESS_TOKEN_SECRET,
+    (error) => (jwtError = error)
+  )
+
+  if (jwtError) {
+    return res.status(403).json({ success: false, message: jwtError.message })
+  }
+
+  try {
+    await db.query(
+      'INSERT INTO items (product_name, product_price, category, product_id, product_img, product_description) VALUES ($1, $2, $3, $4, $5, $6)',
+      [name, parseFloat(price).toFixed(2), category, id, img, description]
+    )
+    res.status(200).json({ success: true })
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message })
+  }
+}
+
+const updateItem = async (req, res) => {
+  const { name, price, category, id, img, description } = req.body
+  const { itemId } = req.query
+  const token = req.headers.authorization
+  let jwtError = true
+
+  jwt.verify(
+    token,
+    process.env.ACCESS_TOKEN_SECRET,
+    (error) => (jwtError = error)
+  )
+
+  if (jwtError) {
+    return res.status(403).json({ success: false, message: jwtError.message })
+  }
+  try {
+    await db.query(
+      'UPDATE items SET product_name = $1, product_price = $2, category = $3, product_id = $4, product_img = $5, product_description = $6 WHERE id = $7',
+      [
+        name,
+        parseFloat(price).toFixed(2),
+        category,
+        id,
+        img,
+        description,
+        itemId,
+      ]
+    )
+    res.status(200).json({ success: true })
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message })
+  }
+}
+
 module.exports = {
   getItems,
+  createItem,
+  updateItem,
 }

@@ -59,6 +59,7 @@ const login = async (req, res) => {
       message: `User ${user.rows[0].email} loged!`,
       data: {
         accessToken: token,
+        role: user.rows[0].role,
       },
     })
   } catch (error) {
