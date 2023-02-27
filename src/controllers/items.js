@@ -45,7 +45,7 @@ const createItem = async (req, res) => {
   )
 
   if (jwtError) {
-    return res.status(403).json({ success: false, message: jwtError.message })
+    return res.status(401).json({ success: false, message: jwtError.message })
   }
 
   try {
@@ -65,6 +65,12 @@ const updateItem = async (req, res) => {
   const token = req.headers.authorization
   let jwtError = true
 
+  if (!itemId) {
+    return res
+      .status(400)
+      .json({ success: false, message: 'Please provide item ID' })
+  }
+
   jwt.verify(
     token,
     process.env.ACCESS_TOKEN_SECRET,
@@ -72,7 +78,7 @@ const updateItem = async (req, res) => {
   )
 
   if (jwtError) {
-    return res.status(403).json({ success: false, message: jwtError.message })
+    return res.status(401).json({ success: false, message: jwtError.message })
   }
   try {
     await db.query(
@@ -93,8 +99,37 @@ const updateItem = async (req, res) => {
   }
 }
 
+const deleteItem = async (req, res) => {
+  const token = req.headers.authorization
+  const { itemId } = req.query
+
+  if (!itemId) {
+    return res
+      .status(400)
+      .json({ success: false, message: 'Please provide item ID' })
+  }
+
+  jwt.verify(
+    token,
+    process.env.ACCESS_TOKEN_SECRET,
+    (error) => (jwtError = error)
+  )
+
+  if (jwtError) {
+    return res.status(401).json({ success: false, message: jwtError.message })
+  }
+
+  try {
+    await db.query('DELETE FROM items WHERE id = $1', [itemId])
+    res.status(200).json({ success: true })
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message })
+  }
+}
+
 module.exports = {
   getItems,
   createItem,
   updateItem,
+  deleteItem,
 }
